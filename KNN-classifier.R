@@ -17,11 +17,12 @@ trainData_k <- data[trainIdx, ]
 
 casted_data <- acast(data, userId ~ movieId)
 casted_data <- as.matrix(casted_data)
-movie_user <- t(casted_data)
+movie_user_matrix <- t(casted_data)
 
 
 
 #normalizing the data with user mean and standard deviation
+numUsers <- nrow(casted_data)
 for(i in 1:numUsers){
   temp <- trainData[i,]
   meant <- mean(temp[!is.na(temp)])
@@ -35,6 +36,24 @@ for(i in 1:numUsers){
 # Finding out the distance matrix between every pair of users
 distance_matrix <- dist(trainData)
 distance_matrix <- as.matrix(distance_matrix)
+
+# Finding out user_list by movie index
+movie_user <- list()
+for(i in 1:nrow(movie_user_matrix)){
+  temp <- as.vector(which(!is.na(movie_user_matrix[i, ])))
+  movie_user[[length(movie_user)+1]] <- temp
+}
+
+
+get_train_error <- function(k, predData){
+  train_error <- 0
+  for(i in 1:nrow(predData)){
+    user_id <- predData[i, 1]
+    movieid <- predData[i, 2]
+    u_rate <- predData[i, 3]
+    
+  }
+}
 
 
 kval <- c(4,5,6,7,8)
