@@ -47,14 +47,28 @@ for(i in 1:nrow(movie_user_matrix)){
 
 get_train_error <- function(k, predData){
   train_error <- 0
-  for(i in 1:nrow(predData)){
-    user_id <- predData[i, 1]
+  for(i in 1:2){
+    userid <- predData[i, 1]
     movieid <- predData[i, 2]
     u_rate <- predData[i, 3]
+    watched_users <- movie_user[[movieid]]
     
+    temp_dist <- data.frame()
+    for(j in watched_users){
+        temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], casted_data[j, movieid]))
+    }
+    temp_dist<- temp_dist[order(temp_dist[2]), ]
+    temp_dist <- temp_dist[1:k,]
+    print (temp_dist)
+    nearest_k_ratings <- temp_dist[,3]
+    nearest_k_ratings <- nearest_k_ratings[!is.na(nearest_k_ratings)]
+    pred_rating <- mean(nearest_k_ratings)
+    train_error <- train_error + ((pred_rating - u_rate)^2)
   }
+  return (sqrt(train_error))
 }
 
+get_train_error(3, trainData_k)
 
 kval <- c(4,5,6,7,8)
 error <- vector()
