@@ -78,28 +78,36 @@ get_error <- function(k, predData){
     u_rate <- predData[i, 3]
     watched_users <- movie_user[[movieid]]
     temp_dist <- data.frame()
-    for(j in watched_users){
-        temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], normalized_data[j, movieid]))
+    if (length(watched_users) == 1){
+      return_error <- return_error + u_rate^2
+      
+    }else{
+      for(j in watched_users){
+        if(j != userid)temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], normalized_data[j, movieid]))
+      }
+        temp_dist<- temp_dist[order(temp_dist[2]), ]
+        temp_dist <- temp_dist[1:k,]
+        nearest_k_ratings <- temp_dist[,3]
+        nearest_k_ratings <- nearest_k_ratings[!is.na(nearest_k_ratings)]
+        pred_rating <- mean(nearest_k_ratings)*user_sd[userid] + user_mean[userid]
+        return_error <- return_error + ((pred_rating - u_rate)^2)
+      }
     }
-    temp_dist<- temp_dist[order(temp_dist[2]), ]
-    temp_dist <- temp_dist[1:k,]
-    nearest_k_ratings <- temp_dist[,3]
-    nearest_k_ratings <- nearest_k_ratings[!is.na(nearest_k_ratings)]
-    pred_rating <- mean(nearest_k_ratings)*user_sd[userid] + user_mean[userid]
-    return_error <- return_error + ((pred_rating - u_rate)^2)
-  }
   return (return_error)
 }
 
 
-kval <- c(3,4)
-error <- vector()
+#kval <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+# Takes about 10mins
+kval <- c(3,5,6,8,10,12)
+sse <- vector()
 for(k in kval){
-  error <- c(error, get_train_error(k, validationData))
+  print (k)
+  sse <- c(sse, get_error(k, validationData))
 }
-validation_errors <- cbind(kval, SSE)
 
+validation_errors <- cbind(kval, sse)
 plot(validation_errors, xlab = "K", ylab = "SSE")
 
-testerror <- get_error(3, testData)
+testerror <- get_error(15, testData)
 testerror
