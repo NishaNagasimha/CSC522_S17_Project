@@ -11,26 +11,41 @@ trainData <- data[trainIdx, ]
 trainData <- acast(trainData, userId ~ movieId)
 trainData <- as.matrix(trainData)
 
-testData <- data[-trainIdx, ]
+restData <- data[-trainIdx, ]
+
+testIdx <- sample(nrow(restData), nrow(restData)/2)
+testData <- restData[testIdx, ]
+validationData <- restData[-testIdx,]
 
 trainData_k <- data[trainIdx, ]
 
 casted_data <- acast(data, userId ~ movieId)
 casted_data <- as.matrix(casted_data)
 movie_user_matrix <- t(casted_data)
+normalized_data <- casted_data
 
-
-
-#normalizing the data with user mean and standard deviation
+#normalizing the training data with user mean and standard deviation
+user_mean <- vector()
+user_sd <- vector()
 numUsers <- nrow(casted_data)
 for(i in 1:numUsers){
   temp <- trainData[i,]
   meant <- mean(temp[!is.na(temp)])
   sdt <- sd(temp[!is.na(temp)])
+  user_mean[i] <- meant
+  user_sd[i] <- sdt
   temp <- (temp-meant)/sdt
   new_mean <- mean(temp[!is.na(temp)])
   temp[is.na(temp)] <- new_mean
   trainData[i, ] <- temp
+  
+  temp <- casted_data[i,]
+  meant <- mean(temp[!is.na(temp)])
+  sdt <- sd(temp[!is.na(temp)])
+  temp <- (temp-meant)/sdt
+  new_mean <- mean(temp[!is.na(temp)])
+  temp[is.na(temp)] <- new_mean
+  normalized_data[i, ] <- temp
 }
 
 # Finding out the distance matrix between every pair of users
@@ -53,33 +68,38 @@ for (i in 1:nrow(movieId)){
 names(movie_map) <- c("ActualID", "MappedID")
 
 
-get_train_error <- function(k, predData){
-  train_error <- 0
+get_error <- function(k, predData){
+  return_error <- 0
   for(i in 1:nrow(predData)){
     userid <- predData[i, 1]
     movieid <- predData[i, 2]
+    #print (movieid)
     movieid <- movie_map[movie_map$ActualID==movieid, 2]
     u_rate <- predData[i, 3]
     watched_users <- movie_user[[movieid]]
     temp_dist <- data.frame()
     for(j in watched_users){
-        temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], casted_data[j, movieid]))
+        temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], normalized_data[j, movieid]))
     }
     temp_dist<- temp_dist[order(temp_dist[2]), ]
     temp_dist <- temp_dist[1:k,]
     nearest_k_ratings <- temp_dist[,3]
     nearest_k_ratings <- nearest_k_ratings[!is.na(nearest_k_ratings)]
-    pred_rating <- mean(nearest_k_ratings)
-    train_error <- train_error + ((pred_rating - u_rate)^2)
+    pred_rating <- mean(nearest_k_ratings)*user_sd[userid] + user_mean[userid]
+    return_error <- return_error + ((pred_rating - u_rate)^2)
   }
-  return (sqrt(train_error))
+  return (return_error)
 }
 
-print (get_train_error(3, trainData_k))
 
-kval <- c(3)
+kval <- c(3,4)
 error <- vector()
 for(k in kval){
-  error <- c(error, get_train_error(k, trainData_k))
+  error <- c(error, get_train_error(k, validationData))
 }
-train_error <- cbind(kval, error)
+validation_errors <- cbind(kval, SSE)
+
+plot(validation_errors, xlab = "K", ylab = "SSE")
+
+testerror <- get_error(3, testData)
+testerror
