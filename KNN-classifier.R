@@ -44,22 +44,29 @@ for(i in 1:nrow(movie_user_matrix)){
   movie_user[[length(movie_user)+1]] <- temp
 }
 
+# Map movieid to an index
+movieId <- read.csv("movieind.csv", header = FALSE)
+movie_map <- data.frame()
+for (i in 1:nrow(movieId)){
+  movie_map <- rbind(movie_map, c(movieId[i,], i))
+}
+names(movie_map) <- c("ActualID", "MappedID")
+
 
 get_train_error <- function(k, predData){
   train_error <- 0
-  for(i in 1:2){
+  for(i in 1:nrow(predData)){
     userid <- predData[i, 1]
     movieid <- predData[i, 2]
+    movieid <- movie_map[movie_map$ActualID==movieid, 2]
     u_rate <- predData[i, 3]
     watched_users <- movie_user[[movieid]]
-    
     temp_dist <- data.frame()
     for(j in watched_users){
         temp_dist <- rbind(temp_dist, c(j, distance_matrix[userid, j], casted_data[j, movieid]))
     }
     temp_dist<- temp_dist[order(temp_dist[2]), ]
     temp_dist <- temp_dist[1:k,]
-    print (temp_dist)
     nearest_k_ratings <- temp_dist[,3]
     nearest_k_ratings <- nearest_k_ratings[!is.na(nearest_k_ratings)]
     pred_rating <- mean(nearest_k_ratings)
@@ -68,9 +75,9 @@ get_train_error <- function(k, predData){
   return (sqrt(train_error))
 }
 
-get_train_error(3, trainData_k)
+print (get_train_error(3, trainData_k))
 
-kval <- c(4,5,6,7,8)
+kval <- c(3)
 error <- vector()
 for(k in kval){
   error <- c(error, get_train_error(k, trainData_k))
