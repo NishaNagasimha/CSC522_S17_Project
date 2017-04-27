@@ -157,6 +157,6 @@ for i in range(0, a):
  l = []
  p = []
  for i in range(0, len(users)):
- 	l.append(user[i].avg_r)
+ 	l.append(users[i][j])
  
  p = pearsonr(l,l])[0]'''
