@@ -45,9 +45,9 @@ def getRating(file):
 		r.append(val)
 	return r
 
-users = getUser("u.user")
-movies = getItem("u.item")
-rating = getRating("u.base")
+users = getUser("dataset/u.user")
+movies = getItem("dataset/u.item")
+rating = getRating("dataset/u.base")
 #test = getRating("u1.test")
 rating.pop()
 
