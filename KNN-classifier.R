@@ -49,7 +49,7 @@ for(i in 1:numUsers){
 }
 
 # Finding out the distance matrix between every pair of users
-distance_matrix <- dist(trainData)
+distance_matrix <- dist(trainData, method = "manhattan")
 distance_matrix <- as.matrix(distance_matrix)
 
 # Finding out user_list by movie index
@@ -99,7 +99,7 @@ get_error <- function(k, predData){
 
 #kval <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
 # Takes about 10mins
-kval <- c(40,43,46,48,51,54)
+kval <- c(5:30)
 sse <- vector()
 for(k in kval){
   print (k)
@@ -108,6 +108,9 @@ for(k in kval){
 
 validation_errors <- cbind(kval, sse)
 plot(validation_errors, xlab = "K", ylab = "SSE")
+
+plot(validation_errors[,1], validation_errors[,2], main="Manhattan measure", xlab = "K", ylab = "SSE") 
+lines(validation_errors[,1], validation_errors[,2], type = "line") 
 
 testerror <- get_error(15, testData)
 testerror
