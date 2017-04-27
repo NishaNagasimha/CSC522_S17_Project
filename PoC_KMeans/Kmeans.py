@@ -9,7 +9,6 @@ from scipy.stats.stats import pearsonr
 from itertools import groupby
 from collections import Counter
 import time
-#import csv
 
 genre = []
 
@@ -48,7 +47,6 @@ def getRating(file):
 users = getUser("dataset/u.user")
 movies = getItem("dataset/u.item")
 rating = getRating("dataset/u.base")
-#test = getRating("u1.test")
 rating.pop()
 
 a = len(users)
@@ -56,21 +54,6 @@ a = len(users)
 b = len(movies)
 
 l = len(rating)
-
-#t = len(test)
-
-#test_matrix = np.zeros((a,b))
-
-'''for t in test:
-	print t
-	k = int(t[0])
-	j = int(t[1])
-	res = int(t[2])
-	#print "k", k
-	#print "j",j
-	#print r
-	test_matrix[k][j] = res'''
-
 
 user_movie_matrix = np.zeros((a,b))
 
@@ -81,9 +64,6 @@ for r in rating:
 	k = int(r[0])
 	j = int(r[1])
 	res = int(r[2])
-	#print "k", k
-	#print "j",j
-	#print r
 	user_movie_matrix[k][j] = res
 
 movies.pop()
@@ -151,23 +131,7 @@ for k, v in top_genre.iteritems():
 	print "User id: ",k
 	for y in range(0, len(v)):
 		print "Top ",(y+1)," genre: ", v[y]
-		#time.sleep(0.1)
-	#time.sleep(0.9)
-'''
-cluster = KMeans(n_clusters=2)
-print cluster.fit_predict(genre)
+		time.sleep(0.1)
+	time.sleep(0.9)
 
-for i in range(a):
-	for j in range(b):
-		print user_movie_matrix[i][j]
-
-# Calculating mean squared error
-actual_y = []
-y_pred = []
-
-for i in range(0, a):
-    for j in range(0, b):
-        actual_y.append(test_matrix[i][j])
-        y_pred.append(user_movie_matrix[i][j])
-print "Mean Squared Error: %f" % mean_squared_error(actual_y, y_pred)'''
 
