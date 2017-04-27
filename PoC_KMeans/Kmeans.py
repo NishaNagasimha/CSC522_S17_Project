@@ -9,9 +9,8 @@ from scipy.stats.stats import pearsonr
 from itertools import groupby
 from collections import Counter
 import time
-#import csv
 
-#List with all the 19 different genres
+#List to map the 19 different genres
 genre = []
 
 #Load all the users from the movielens dataset
@@ -25,7 +24,7 @@ def getUser(file):
 		u.append(val)
 	return u
 
-#Load all the items from the movielens dataset
+#Load all the movies from the movielens dataset
 i = []
 def getItem(file):
 	f = open(file, "r")
@@ -50,7 +49,7 @@ def getRating(file):
 users = getUser("dataset/u.user")
 movies = getItem("dataset/u.item")
 rating = getRating("dataset/u.base")
-#test = getRating("u1.test")
+
 rating.pop()
 
 a = len(users)
@@ -59,20 +58,7 @@ b = len(movies)
 
 l = len(rating)
 
-#t = len(test)
-#test_matrix = np.zeros((a,b))
-
-'''for t in test:
-	print t
-	k = int(t[0])
-	j = int(t[1])
-	res = int(t[2])
-	#print "k", k
-	#print "j",j
-	#print r
-	test_matrix[k][j] = res'''
-
-
+#Generating the user-movie matrix with ratings
 user_movie_matrix = np.zeros((a,b))
 
 for r in rating:
@@ -83,6 +69,7 @@ for r in rating:
 
 movies.pop()
 
+#Extracting the genre fields from movie data
 genre = []
 for movie in movies:
 	item =[]
@@ -90,14 +77,18 @@ for movie in movies:
 		item.append(movie[i])
 	genre.append(item)
 
+#Clustering (KMeans) the movies based on genres
 genre = np.array(genre)
 cluster = KMeans(n_clusters=19, random_state=0).fit_predict(genre)
 
+#Genre map
 genre_name = ["unknown", "action", "adventure", "animation", "childrens", "comedy", "crime", "documentary","drama", "fantasy", "film_noir", "horror", "musical", "mystery","romance", "sci_fi", "thriller", "war", "western"]
 
 recommend = {}
 c = b-1
 
+#For each user, extracting the genres which he has rated greater than equal to 3 (Here 3 is our threshold)
+#Genre of a movie is taken from the KMeans cluster found above
 for i in range(0,a):
 	g_list = []
 	for j in range(0,c):
@@ -105,6 +96,7 @@ for i in range(0,a):
 			g_list.append(cluster[j])
 	recommend[i] = g_list
 
+#Counting the most common genre which the user has rated greater than or equal to 3 and taking the top 5 from it
 final = {}
 for k, v in recommend.iteritems():
 	rec = {}
@@ -120,7 +112,8 @@ for k, v in recommend.iteritems():
 		for i in range(0,5):	
 			top5.append(rec[i])	
 	final[k] = top5
-		
+
+#Mapping the genre Id to genre name to identify the top 5 genres which each user prefers
 top_genre = {}
 for k, v in final.iteritems():
 	gen = []
@@ -135,28 +128,3 @@ for k, v in top_genre.iteritems():
 		print "Top ",(y+1)," genre: ", v[y]
 		time.sleep(0.1)
 	time.sleep(0.9)
-'''
-cluster = KMeans(n_clusters=2)
-print cluster.fit_predict(genre)
-
-for i in range(a):
-	for j in range(b):
-		print user_movie_matrix[i][j]
-
-# Calculating mean squared error
-actual_y = []
-y_pred = []
-
-for i in range(0, a):
-    for j in range(0, b):
-        actual_y.append(test_matrix[i][j])
-        y_pred.append(user_movie_matrix[i][j])
-print "Mean Squared Error: %f" % mean_squared_error(actual_y, y_pred)
-
-#Pearson Coefficient
-l = []
-p = []
-for i in range(0, len(users)):
-	l.append(user[i].avg_r)
-
-p = pearsonr(l,l])[0]'''
