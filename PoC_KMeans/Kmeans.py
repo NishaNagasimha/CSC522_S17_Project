@@ -49,7 +49,7 @@ def getRating(file):
 users = getUser("dataset/u.user")
 movies = getItem("dataset/u.item")
 rating = getRating("dataset/u.base")
-
+#test = getRating("u1.test")
 rating.pop()
 
 a = len(users)
@@ -60,6 +60,20 @@ l = len(rating)
 
 #Generating the user-movie matrix with ratings
 user_movie_matrix = np.zeros((a,b))
+#t = len(test)
+#test_matrix = np.zeros((a,b))
+
+#user_movie_matrix = [[0 for x in range(b)] for y in range(b)]
+#print user_movie_matrix[943][1682]
+ '''for t in test:
+ 	print t
+ 	k = int(t[0])
+ 	j = int(t[1])
+ 	res = int(t[2])
+ 	#print "k", k
+ 	#print "j",j
+ 	#print r
+ 	test_matrix[k][j] = res'''
 
 for r in rating:
 	k = int(r[0])
@@ -128,3 +142,21 @@ for k, v in top_genre.iteritems():
 		print "Top ",(y+1)," genre: ", v[y]
 		time.sleep(0.1)
 	time.sleep(0.9)
+
+# Calculating mean squared error
+'''actual_y = []
+y_pred = []
+ 
+for i in range(0, a):
+    for j in range(0, b):
+         actual_y.append(test_matrix[i][j])
+         y_pred.append(user_movie_matrix[i][j])
+ print "Mean Squared Error: %f" % mean_squared_error(actual_y, y_pred)
+ 
+ #Pearson Coefficient
+ l = []
+ p = []
+ for i in range(0, len(users)):
+ 	l.append(user[i].avg_r)
+ 
+ p = pearsonr(l,l])[0]'''
